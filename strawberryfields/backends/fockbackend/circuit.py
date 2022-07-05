@@ -188,7 +188,7 @@ class Circuit:
             if diag:
                 mat_diag = mat.diagonal().reshape(-1, 1)
                 return np.multiply(mat_diag, np.multiply(state, mat_diag.conj().T))
-            return np.dot(mat, np.dot(state, mat.conj().T))
+            return np.linalg.multi_dot([mat, state, mat.conj().T])
 
         # Transpose the state into the following form:
         # |psi><psi||mode[0]>|mode[1]>...|mode[n]><mode[0]|<mode[1]|...<mode[n]|
@@ -205,9 +205,7 @@ class Circuit:
                     mat_diag, np.multiply(view[i].reshape((dim, dim)), mat_diag.conj().T)
                 ).reshape(stshape + stshape)
             else:
-                ret[i] = np.dot(
-                    matview, np.dot(view[i].reshape((dim, dim)), matview.conj().T)
-                ).reshape(stshape + stshape)
+                ret[i] = np.linalg.multi_dot([matview, view[i].reshape((dim, dim)), matview.conj().T]).reshape(stshape + stshape)
 
         # "untranspose" the return matrix ret
         untranspose_list = [0] * len(transpose_list)
